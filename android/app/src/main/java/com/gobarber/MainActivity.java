@@ -1,4 +1,4 @@
-package com.modulo10;
+package com.gobarber;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
