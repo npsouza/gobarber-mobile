@@ -16,6 +16,7 @@ export function* signIn({payload}) {
     const {token, user} = response.data;
 
     if (user.provider) {
+      yield put(signFailure());
       Alert.alert(
         'Erro no login',
         'O usuário não pode ser prestador de serviço',
@@ -29,11 +30,11 @@ export function* signIn({payload}) {
 
     // history.push('/dashboard');
   } catch (err) {
+    yield put(signFailure());
     Alert.alert(
       'Falha na autenticação',
       'Houve um erro no login, verifique seus dados',
     );
-    yield put(signFailure());
   }
 }
 
@@ -70,6 +71,7 @@ export function setToken({payload}) {
 
 export default all([
   takeLatest('persist/REHYDRATE', setToken),
+  takeLatest('@auth/SIGN_IN_SUCCESS', setToken),
   takeLatest('@auth/SIGN_IN_REQUEST', signIn),
   takeLatest('@auth/SIGN_UP_REQUEST', signUp),
 ]);
