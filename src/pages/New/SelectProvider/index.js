@@ -5,14 +5,25 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import api from '~/services/api';
 import Background from '~/components/Background';
 
-import {Container, ProvidersList, Provider, Avatar, Name} from './styles';
+import {
+  Container,
+  ProvidersList,
+  Provider,
+  Avatar,
+  Name,
+  Loading,
+  NoProviders,
+} from './styles';
 
 export default function SelectProvider({navigation}) {
   const [providers, setProviders] = useState([]);
+  const [isLoadingProviders, setIsLoadingProviders] = useState(false);
 
   useEffect(() => {
     async function loadProviders() {
+      setIsLoadingProviders(true);
       const response = await api.get('providers');
+      setIsLoadingProviders(false);
 
       setProviders(response.data);
     }
@@ -23,23 +34,33 @@ export default function SelectProvider({navigation}) {
   return (
     <Background>
       <Container>
-        <ProvidersList
-          data={providers}
-          keyExtractor={provider => String(provider.id)}
-          renderItem={({item: provider}) => (
-            <Provider
-              onPress={() => navigation.navigate('SelectDateTime', {provider})}>
-              <Avatar
-                source={{
-                  uri: provider.avatar
-                    ? provider.avatar.url
-                    : `https://api.adorable.io/avatar/50/${provider.name}.png`,
-                }}
-              />
-              <Name>{provider.name}</Name>
-            </Provider>
-          )}
-        />
+        {isLoadingProviders && <Loading />}
+
+        {!isLoadingProviders && providers.length > 0 && (
+          <ProvidersList
+            data={providers}
+            keyExtractor={provider => String(provider.id)}
+            renderItem={({item: provider}) => (
+              <Provider
+                onPress={() =>
+                  navigation.navigate('SelectDateTime', {provider})
+                }>
+                <Avatar
+                  source={{
+                    uri: provider.avatar
+                      ? provider.avatar.url
+                      : `https://api.adorable.io/avatar/50/${provider.name}.png`,
+                  }}
+                />
+                <Name>{provider.name}</Name>
+              </Provider>
+            )}
+          />
+        )}
+
+        {!isLoadingProviders && providers.length === 0 && (
+          <NoProviders>Nenhum prestador disponível no momento :(</NoProviders>
+        )}
       </Container>
     </Background>
   );

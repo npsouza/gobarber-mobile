@@ -5,15 +5,17 @@ import {withNavigationFocus} from 'react-navigation';
 import api from '~/services/api';
 
 import Background from '~/components/Background';
-import {Container, Title, List} from './styles';
+import {Container, Title, List, Loading, NoAppointments} from './styles';
 import Appointment from '~/components/Appointment';
 
 function Dashboard({isFocused}) {
   const [appointments, setAppointments] = useState([]);
+  const [isLoadingAppointment, setIsLoadingAppointment] = useState(false);
 
   async function loadAppointments() {
+    setIsLoadingAppointment(true);
     const response = await api.get('appointments');
-
+    setIsLoadingAppointment(false);
     setAppointments(response.data);
   }
 
@@ -42,13 +44,21 @@ function Dashboard({isFocused}) {
     <Background>
       <Container>
         <Title>Agendamentos</Title>
-        <List
-          data={appointments}
-          keyExtractor={item => String(item.id)}
-          renderItem={({item}) => (
-            <Appointment onCancel={() => handleCancel(item.id)} data={item} />
-          )}
-        />
+        {isLoadingAppointment && <Loading />}
+
+        {!isLoadingAppointment && appointments.length > 0 && (
+          <List
+            data={appointments}
+            keyExtractor={item => String(item.id)}
+            renderItem={({item}) => (
+              <Appointment onCancel={() => handleCancel(item.id)} data={item} />
+            )}
+          />
+        )}
+
+        {!isLoadingAppointment && appointments.length === 0 && (
+          <NoAppointments>Você não possui nenhum agendamento</NoAppointments>
+        )}
       </Container>
     </Background>
   );
